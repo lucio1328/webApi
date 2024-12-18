@@ -1,7 +1,8 @@
-package com.web.webapi.repository;
+package com.web.api.repository;
 
-import com.web.webapi.models.ValidationConnectionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.web.api.models.ValidationConnectionEntity;
 
 public interface ValidationConnectionRepository extends JpaRepository<ValidationConnectionEntity, Integer> {
 }
