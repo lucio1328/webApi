@@ -2,7 +2,7 @@ CREATE TABLE utilisateur(
    Id_utilisateur SERIAL,
    nom VARCHAR(50)  NOT NULL,
    email VARCHAR(50)  NOT NULL,
-   mot_de_passe VARCHAR(50)  NOT NULL,
+   mot_de_passe VARCHAR(255)  NOT NULL,
    PRIMARY KEY(Id_utilisateur)
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE pre_inscription(
    Id_pre_inscription SERIAL,
    nom VARCHAR(50)  NOT NULL,
    email VARCHAR(50)  NOT NULL,
-   mot_de_passe VARCHAR(50)  NOT NULL,
+   mot_de_passe VARCHAR(255)  NOT NULL,
    Id_statut INTEGER NOT NULL,
    PRIMARY KEY(Id_pre_inscription),
    FOREIGN KEY(Id_statut) REFERENCES statut(Id_statut)
