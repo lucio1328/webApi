@@ -1,6 +1,6 @@
-package com.web.webapi.repository;
+package com.web.api.repository;
 
-import com.web.webapi.models.StatutEntity;
+import com.web.api.models.StatutEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StatutRepository extends JpaRepository<StatutEntity, Integer> {
