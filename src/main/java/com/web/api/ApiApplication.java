@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan("com.web.api.controllers")
+@ComponentScan("com.web.api")
 public class ApiApplication {
 
 	public static void main(String[] args) {
