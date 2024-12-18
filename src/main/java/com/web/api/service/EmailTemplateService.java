@@ -17,5 +17,12 @@ public class EmailTemplateService {
 
         return template_engine.process("emailPinTemplate", context);
     }
+
+    public String generer_email_confirmation_inscription(String content) {
+        Context context = new Context();
+        context.setVariable("content", content);
+
+        return template_engine.process("emailConfirmationInscriptionTemplate", context);
+    }
 }
 

@@ -15,8 +15,20 @@ public class EmailSender {
     private EmailTemplateService emailTemplateService;
 
     public void envoyer_email_confirmation(String recepteur, String pin) {
-        String subject = "Confirmation inscription";
+        String subject = "Confirmation connexion";
         String htmlContent = emailTemplateService.generer_email_connexion(pin);
+
+        try {
+            emailService.envoyer_html_via_email(recepteur, subject, htmlContent);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            // Gère les erreurs ici
+        }
+    }
+
+    public void envoyer_email_validation_inscription(String recepteur, String lien) {
+        String subject = "Confirmation inscription";
+        String htmlContent = emailTemplateService.generer_email_confirmation_inscription(lien);
 
         try {
             emailService.envoyer_html_via_email(recepteur, subject, htmlContent);

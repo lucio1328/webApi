@@ -19,5 +19,12 @@ public class EmailController {
         emailSender.envoyer_email_confirmation(email, pin);
         return "Email envoyé avec succès à " + email;
     }
+
+    @GetMapping("/send-email-inscription")
+    public String sendEmailInscription(@RequestParam String email) {
+        String lien = "huhu";
+        emailSender.envoyer_email_validation_inscription(email, lien);
+        return "Email envoyé avec succès à " + email;
+    }
 }
 
