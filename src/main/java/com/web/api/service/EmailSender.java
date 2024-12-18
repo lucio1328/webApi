@@ -14,13 +14,12 @@ public class EmailSender {
     @Autowired
     private EmailTemplateService emailTemplateService;
 
-    public void sendEmailWithTemplate(String recipientEmail, String name) {
-        String subject = "Exemple d'email avec Spring Boot";
-        String htmlContent = emailTemplateService.generateEmailContent(name);
-        System.out.println(htmlContent);
+    public void envoyer_email_confirmation(String recepteur, String pin) {
+        String subject = "Confirmation inscription";
+        String htmlContent = emailTemplateService.generer_email_connexion(pin);
 
         try {
-            emailService.sendHtmlEmail(recipientEmail, subject, htmlContent);
+            emailService.envoyer_html_via_email(recepteur, subject, htmlContent);
         } catch (MessagingException e) {
             e.printStackTrace();
             // Gère les erreurs ici

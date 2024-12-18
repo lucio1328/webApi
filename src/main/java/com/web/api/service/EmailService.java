@@ -14,13 +14,13 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendHtmlEmail(String to, String subject, String htmlContent) throws MessagingException {
+    public void envoyer_html_via_email(String to, String subject, String htmlContent) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(htmlContent, true); // true pour indiquer que c'est du HTML
+        helper.setText(htmlContent, true); 
 
         mailSender.send(mimeMessage);
     }
