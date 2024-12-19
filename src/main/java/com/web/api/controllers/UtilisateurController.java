@@ -1,5 +1,6 @@
 package com.web.api.controllers;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Map;
 
@@ -18,11 +19,13 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.web.api.models.PreInscriptionEntity;
+import com.web.api.models.Sessions;
 import com.web.api.models.TokenUserEntity;
 import com.web.api.models.UtilisateurEntity;
 import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
 import com.web.api.services.AuthService;
+import com.web.api.services.TokenUserService;
 import com.web.api.services.UtilisateurService;
 
 @RestController
@@ -40,6 +43,9 @@ public class UtilisateurController {
     @Autowired
     TokenUserRepository tokenUserRepository;
 
+    @Autowired
+    TokenUserService tokenUserService;
+
     @PostMapping("check-login")
     public ResponseEntity<?> checkLogin(@RequestParam String email, @RequestParam String motDePasse) {
         try {
@@ -48,29 +54,35 @@ public class UtilisateurController {
             String secretKey = "cleTokenUser";
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
             String token = JWT.create()
-                    .withIssuer("CloudS5")
-                    .withSubject(email)
+                    .withIssuer("CloudS5Key")
                     .withIssuedAt(new Date())
                     .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000))
                     .sign(algorithm);
 
-            ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(3600)
-                    .sameSite("Strict")
-                    .build();
+            // Sauvegarder le token dans la base de donnee:
+            TokenUserEntity tokenUser = new TokenUserEntity();
+            tokenUser.setIdUtilisateur(utilisateur.getIdUtilisateur());
+            tokenUser.setDateCreation(new Timestamp(System.currentTimeMillis()));
+            tokenUser.setToken(token);
+            System.out.println("tokenUser = " + tokenUser.getIdUtilisateur());
+            tokenUser = this.tokenUserService.saveToken(tokenUser);
+
+            // ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
+            //         .httpOnly(true)
+            //         .secure(true)
+            //         .path("/")
+            //         .maxAge(Sessions.DUREE_TOKEN)
+            //         .sameSite("Strict")
+            //         .build();
 
             return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .header("Set-Cookie", jwtCookie.toString())
                     .body(Map.of(
                             "message", "Utilisateur trouvé",
                             "data", utilisateur));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
-                    "error", e.getMessage()));
+                    "error", e.getStackTrace()));
         }
     }
 
@@ -130,5 +142,16 @@ public class UtilisateurController {
                     "error", "Token invalide ou expiré"));
         }
     }
+
+
+
+    @GetMapping("/parametrer-session")
+    public ResponseEntity<?> parametrer(@RequestParam int dureeToken) {
+        Sessions.DUREE_TOKEN = dureeToken * 60;
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
+            "message", "Duree token changé"
+        ));
+    }
+    
 
 }
