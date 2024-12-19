@@ -1,0 +1,12 @@
+com\web\api\ApiApplication.class
+com\web\api\repository\ValidationConnectionRepository.class
+com\web\api\repository\TokenUserRepository.class
+com\web\api\repository\UtilisateurRepository.class
+com\web\api\models\TokenUserEntity.class
+com\web\api\models\PreInscriptionEntity.class
+com\web\api\models\ValidationConnectionEntity.class
+com\web\api\repository\StatutRepository.class
+com\web\api\models\StatutEntity.class
+com\web\api\models\UtilisateurEntity.class
+com\web\api\repository\PreInscriptionRepository.class
+com\web\api\controllers\TestController.class
