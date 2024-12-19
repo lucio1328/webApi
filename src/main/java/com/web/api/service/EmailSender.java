@@ -20,7 +20,8 @@ public class EmailSender {
 
         try {
             emailService.envoyer_html_via_email(recepteur, subject, htmlContent);
-        } catch (MessagingException e) {
+        }
+        catch (MessagingException e) {
             e.printStackTrace();
             // Gère les erreurs ici
         }
@@ -32,9 +33,22 @@ public class EmailSender {
 
         try {
             emailService.envoyer_html_via_email(recepteur, subject, htmlContent);
-        } catch (MessagingException e) {
+        }
+        catch (MessagingException e) {
             e.printStackTrace();
             // Gère les erreurs ici
+        }
+    }
+
+    public void envoyer_email_reinitialiser_tentative(String recepteur, String lien) {
+        String subject = "Reinitialiser tentative";
+        String htmlContent = emailTemplateService.reinitialiser_tentative(lien);
+
+        try {
+            emailService.envoyer_html_via_email(recepteur, subject, htmlContent);
+        }
+        catch (MessagingException e) {
+            e.printStackTrace();
         }
     }
 }
