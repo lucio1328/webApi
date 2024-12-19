@@ -24,6 +24,7 @@ import com.web.api.models.UtilisateurEntity;
 import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
 import com.web.api.service.AuthService;
+import com.web.api.service.EmailSender;
 import com.web.api.service.TokenUserService;
 import com.web.api.service.UtilisateurService;
 
@@ -44,6 +45,9 @@ public class UtilisateurController {
 
     @Autowired
     TokenUserService tokenUserService;
+
+    @Autowired
+    EmailSender emailSender;
 
     @PostMapping("check-login")
     public ResponseEntity<?> checkLogin(@RequestParam String email, @RequestParam String motDePasse) {
@@ -67,12 +71,12 @@ public class UtilisateurController {
             tokenUser = this.tokenUserService.saveToken(tokenUser);
 
             // ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
-            //         .httpOnly(true)
-            //         .secure(true)
-            //         .path("/")
-            //         .maxAge(Sessions.DUREE_TOKEN)
-            //         .sameSite("Strict")
-            //         .build();
+            // .httpOnly(true)
+            // .secure(true)
+            // .path("/")
+            // .maxAge(Sessions.DUREE_TOKEN)
+            // .sameSite("Strict")
+            // .build();
 
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(Map.of(
@@ -81,7 +85,7 @@ public class UtilisateurController {
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
-                    "error", e.getStackTrace()));
+                    "error", e.getMessage()));
         }
     }
 
@@ -93,6 +97,10 @@ public class UtilisateurController {
         String message = "En attente de validation";
         try {
             preInscriptionEntity = this.authService.controlPreInscription(nom, email, motDePasse, confirmMotDePasse);
+
+            // Mandefa email validation:
+            this.emailSender.envoyer_email_validation_inscription(email,
+                    "http://localhost:8080/api/preinscriptions/confirmer/" + preInscriptionEntity.getIdPreInscription());
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "message", message,
@@ -142,15 +150,11 @@ public class UtilisateurController {
         }
     }
 
-
-
     @GetMapping("/parametrer-session")
     public ResponseEntity<?> parametrer(@RequestParam int dureeToken) {
         Sessions.DUREE_TOKEN = dureeToken * 60;
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
-            "message", "Duree token changé"
-        ));
+                "message", "Duree token changé"));
     }
-    
 
 }

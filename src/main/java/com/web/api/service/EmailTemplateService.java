@@ -9,13 +9,27 @@ import org.thymeleaf.context.Context;
 public class EmailTemplateService {
 
     @Autowired
-    private TemplateEngine templateEngine;
+    private TemplateEngine template_engine;
 
-    public String generateEmailContent(String name) {
+    public String generer_email_connexion(String content) {
         Context context = new Context();
-        context.setVariable("name", name);
+        context.setVariable("content", content);
 
-        return templateEngine.process("emailTemplate", context);
+        return template_engine.process("emailPinTemplate", context);
+    }
+
+    public String generer_email_confirmation_inscription(String content) {
+        Context context = new Context();
+        context.setVariable("content", content);
+
+        return template_engine.process("emailConfirmationInscriptionTemplate", context);
+    }
+
+    public String reinitialiser_tentative(String content) {
+        Context context = new Context();
+        context.setVariable("content", content);
+
+        return template_engine.process("emailReinitialiserTentative", context);
     }
 }
 

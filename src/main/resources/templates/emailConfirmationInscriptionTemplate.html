@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .email-container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px 30px;
+            max-width: 600px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .email-container h1 {
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        .email-container p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+
+        .email-container a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 3px 6px rgba(0, 123, 255, 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .email-container a:hover {
+            background-color: #0056b3;
+            box-shadow: 0 5px 10px rgba(0, 86, 179, 0.5);
+        }
+
+        .email-container lien {
+            background-color: #f1faff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Bonjour,</h1>
+        <p>Pour confirmer votre inscription à notre site, veuillez cliquer sur le lien suivant.</p>
+        <div th:text="${content}" class="lien"><a href=""></a></div>
+        <p>Merci de nous faire confiance.</p>
+    </div>
+</body>
+</html>
