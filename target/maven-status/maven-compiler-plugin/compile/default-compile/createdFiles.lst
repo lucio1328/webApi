@@ -1,3 +1,4 @@
+com\web\api\service\EmailTemplateService.class
 com\web\api\ApiApplication.class
 com\web\api\repository\ValidationConnectionRepository.class
 com\web\api\repository\TokenUserRepository.class
@@ -9,4 +10,8 @@ com\web\api\repository\StatutRepository.class
 com\web\api\models\StatutEntity.class
 com\web\api\models\UtilisateurEntity.class
 com\web\api\repository\PreInscriptionRepository.class
+com\web\api\service\EmailSender.class
+com\web\api\config\SwaggerConfig.class
+com\web\api\service\EmailService.class
 com\web\api\controllers\TestController.class
+com\web\api\controllers\EmailController.class

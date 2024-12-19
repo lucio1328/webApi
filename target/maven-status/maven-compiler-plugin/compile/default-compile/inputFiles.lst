@@ -1,4 +1,5 @@
 D:\webApi\src\main\java\com\web\api\ApiApplication.java
+D:\webApi\src\main\java\com\web\api\config\SwaggerConfig.java
 D:\webApi\src\main\java\com\web\api\controllers\EmailController.java
 D:\webApi\src\main\java\com\web\api\controllers\TestController.java
 D:\webApi\src\main\java\com\web\api\models\PreInscriptionEntity.java
