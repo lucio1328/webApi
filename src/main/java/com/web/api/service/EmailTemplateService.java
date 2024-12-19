@@ -24,5 +24,12 @@ public class EmailTemplateService {
 
         return template_engine.process("emailConfirmationInscriptionTemplate", context);
     }
+
+    public String reinitialiser_tentative(String content) {
+        Context context = new Context();
+        context.setVariable("content", content);
+
+        return template_engine.process("emailReinitialiserTentative", context);
+    }
 }
 
