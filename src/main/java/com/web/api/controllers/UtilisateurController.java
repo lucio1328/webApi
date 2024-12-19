@@ -100,7 +100,7 @@ public class UtilisateurController {
                     "data", preInscriptionEntity));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
-                    "error", e.getStackTrace()));
+                    "error", e.getMessage()));
 
         }
 
