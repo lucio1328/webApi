@@ -7,7 +7,6 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,9 +23,9 @@ import com.web.api.models.TokenUserEntity;
 import com.web.api.models.UtilisateurEntity;
 import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
-import com.web.api.services.AuthService;
-import com.web.api.services.TokenUserService;
-import com.web.api.services.UtilisateurService;
+import com.web.api.service.AuthService;
+import com.web.api.service.TokenUserService;
+import com.web.api.service.UtilisateurService;
 
 @RestController
 public class UtilisateurController {
