@@ -8,8 +8,8 @@ import java.util.Objects;
 @Entity
 @Table(name = "token_user", schema = "public", catalog = "api")
 public class TokenUserEntity {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_token_user", nullable = false)
     private int idTokenUser;
     @Basic
@@ -18,6 +18,11 @@ public class TokenUserEntity {
     @Basic
     @Column(name = "id_utilisateur", nullable = false)
     private int idUtilisateur;
+
+    @Basic
+    @Column(name = "token", nullable = false, length = 255)
+    private String token;
+
 
     public int getIdTokenUser() {
         return idTokenUser;
@@ -41,6 +46,14 @@ public class TokenUserEntity {
 
     public void setIdUtilisateur(int idUtilisateur) {
         this.idUtilisateur = idUtilisateur;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
