@@ -1,4 +1,4 @@
-package com.web.api.services;
+package com.web.api.service;
 
 import org.springframework.stereotype.Service;
 

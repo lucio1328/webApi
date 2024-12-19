@@ -18,12 +18,11 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.web.api.models.PreInscriptionEntity;
-import com.web.api.models.TokenUserEntity;
 import com.web.api.models.UtilisateurEntity;
 import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
-import com.web.api.services.AuthService;
-import com.web.api.services.UtilisateurService;
+import com.web.api.service.AuthService;
+import com.web.api.service.UtilisateurService;
 
 @RestController
 public class UtilisateurController {
