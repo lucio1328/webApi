@@ -18,7 +18,7 @@ public class UtilisateurEntity {
     @Column(name = "email", nullable = false, length = 50)
     private String email;
     @Basic
-    @Column(name = "mot_de_passe", nullable = false, length = 50)
+    @Column(name = "mot_de_passe", nullable = false, length = 255)
     private String motDePasse;
 
     public int getIdUtilisateur() {
