@@ -7,10 +7,15 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +30,8 @@ import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
 import com.web.api.service.AuthService;
 import com.web.api.service.EmailSender;
+import com.web.api.service.PinService;
+import com.web.api.service.TentativeService;
 import com.web.api.service.TokenUserService;
 import com.web.api.service.UtilisateurService;
 
@@ -49,9 +56,23 @@ public class UtilisateurController {
     @Autowired
     EmailSender emailSender;
 
+    @Autowired
+    TentativeService tentativeService;
+
+    @Autowired
+    PinService pinService;
+
     @PostMapping("check-login")
     public ResponseEntity<?> checkLogin(@RequestParam String email, @RequestParam String motDePasse) {
+        if (tentativeService.isBlocked(email)) {
+            this.emailSender.envoyer_email_reinitialiser_tentative(email,
+                    "http://localhost:8080/api/reinitialiser/" + email);
+
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
+                    "error", "Votre compte a été temporairement bloqué, checkez votre email pour reinitialiser"));
+        }
         try {
+
             UtilisateurEntity utilisateur = this.authService.checkLogin(email, motDePasse);
 
             String secretKey = "cleTokenUser";
@@ -70,20 +91,19 @@ public class UtilisateurController {
             System.out.println("tokenUser = " + tokenUser.getIdUtilisateur());
             tokenUser = this.tokenUserService.saveToken(tokenUser);
 
-            // ResponseCookie jwtCookie = ResponseCookie.from("jwt_token", token)
-            // .httpOnly(true)
-            // .secure(true)
-            // .path("/")
-            // .maxAge(Sessions.DUREE_TOKEN)
-            // .sameSite("Strict")
-            // .build();
+            int PIN = (int) (Math.random() * 9000) + 1000;
+            // Envoyer le code pin ici
+            this.emailSender.envoyer_email_confirmation(email, String.valueOf(PIN), utilisateur.getIdUtilisateur());
 
+            this.tentativeService.loginSucceeded(email);
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(Map.of(
-                            "message", "Utilisateur trouvé",
+                            "message", "Authentification reussi, on vous a envoyé un code PIN pour vous connecter",
                             "data", utilisateur));
 
         } catch (Exception e) {
+            // Faire tous les trucs de Lucio ici..
+            tentativeService.loginFailed(email);
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
                     "error", e.getMessage()));
         }
@@ -94,13 +114,14 @@ public class UtilisateurController {
             @RequestParam String motDePasse, @RequestParam String confirmMotDePasse) {
 
         PreInscriptionEntity preInscriptionEntity = null;
-        String message = "En attente de validation";
+        String message = "En attente de validation, checkez votre email";
         try {
             preInscriptionEntity = this.authService.controlPreInscription(nom, email, motDePasse, confirmMotDePasse);
 
             // Mandefa email validation:
             this.emailSender.envoyer_email_validation_inscription(email,
-                    "http://localhost:8080/api/preinscriptions/confirmer/" + preInscriptionEntity.getIdPreInscription());
+                    "http://localhost:8080/api/preinscriptions/confirmer/"
+                            + preInscriptionEntity.getIdPreInscription());
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                     "message", message,
@@ -155,6 +176,67 @@ public class UtilisateurController {
         Sessions.DUREE_TOKEN = dureeToken * 60;
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
                 "message", "Duree token changé"));
+    }
+
+    @GetMapping("/reinitialiser/{email}")
+    public ResponseEntity<?> reinitialiser(@PathVariable String email) {
+        this.tentativeService.reinitialiser(email);
+        return ResponseEntity.status(HttpStatusCode.valueOf(200)).body(Map.of(
+                "message", "Votre compte a été réinitialisé. Vous pouvez reconnecter"));
+    }
+
+    @GetMapping("/confirmerConnexion/{idUtilisateur}/{pin}")
+    public ResponseEntity<?> confirmerConnexion(@PathVariable int idUtilisateur, @PathVariable int pin) {
+        String secretKey = "cleTokenUser";
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        String token = JWT.create()
+                .withIssuer("CloudS5Key")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 3600 * 1000))
+                .sign(algorithm);
+
+        // Controler de PIN
+        try {
+            this.pinService.verifierPin(pin, idUtilisateur);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(400)).body(Map.of(
+                    "error", e.getMessage()));
+        }
+
+        // Sauvegarder le token dans la base de donnee:
+        TokenUserEntity tokenUser = new TokenUserEntity();
+        tokenUser.setIdUtilisateur(idUtilisateur);
+        tokenUser.setDateCreation(new Timestamp(System.currentTimeMillis()));
+        tokenUser.setToken(token);
+        System.out.println("tokenUser = " + tokenUser.getIdUtilisateur());
+        tokenUser = this.tokenUserService.saveToken(tokenUser);
+
+        return ResponseEntity.status(HttpStatusCode.valueOf(200))
+                .body(Map.of(
+                        "message", "Authentification reussi, vous etes connecté maintenant"));
+    }
+
+    @PutMapping("/{Id_utilisateur}")
+    public ResponseEntity<UtilisateurEntity> updateUtilisateur(
+            @PathVariable int Id_utilisateur,
+            @RequestBody UtilisateurEntity utilisateurDetails) {
+
+        UtilisateurEntity updatedUtilisateur = utilisateurService.updateUtilisateur(Id_utilisateur, utilisateurDetails);
+        if (updatedUtilisateur != null) {
+            return ResponseEntity.ok(updatedUtilisateur); // Retourner l'utilisateur mis à jour
+        }
+        return ResponseEntity.notFound().build(); // Retourner 404 si l'utilisateur n'existe pas
+    }
+
+    @DeleteMapping("/{Id_utilisateur}")
+    public ResponseEntity<?> deleteUtilisateur(@PathVariable int Id_utilisateur) {
+        boolean isDeleted = utilisateurService.deleteUtilisateur(Id_utilisateur);
+
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(204)).body(Map.of(
+                    "message", "Utilisateur supprimé avec succes"));
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }
