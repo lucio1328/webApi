@@ -10,6 +10,8 @@ import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
 import com.web.api.repository.ValidationConnectionRepository;
 
+import jakarta.servlet.http.HttpSession;
+
 @Service
 public class UtilisateurService {
     @Autowired
@@ -19,7 +21,8 @@ public class UtilisateurService {
     private TokenUserRepository tokenUserRepository;
 
     @Autowired
-    private ValidationConnectionRepository validationConnectionRepository;
+    HttpSession session;
+
 
     public UtilisateurEntity updateUtilisateur(int Id_utilisateur, UtilisateurEntity utilisateurDetails) {
         Optional<UtilisateurEntity> utilisateurOpt = utilisateurRepository.findById(Id_utilisateur);
@@ -47,5 +50,16 @@ public class UtilisateurService {
             return true;
         }
         return false; // Retourner false si l'utilisateur n'est pas trouvé
+    }
+
+    public boolean deconnecter(int idUtilisateur) {
+        // supprimer le token dans la base de donnee
+        this.tokenUserRepository.deleteByIdUtilisateur(idUtilisateur);
+
+        // supprimer session
+        session.invalidate();
+
+        return true;
+
     }
 }

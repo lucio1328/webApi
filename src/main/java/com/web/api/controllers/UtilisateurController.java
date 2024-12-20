@@ -22,10 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.web.api.models.Config;
 import com.web.api.models.PreInscriptionEntity;
 import com.web.api.models.Sessions;
 import com.web.api.models.TokenUserEntity;
 import com.web.api.models.UtilisateurEntity;
+import com.web.api.repository.ConfigRepository;
 import com.web.api.repository.TokenUserRepository;
 import com.web.api.repository.UtilisateurRepository;
 import com.web.api.service.AuthService;
@@ -34,6 +36,8 @@ import com.web.api.service.PinService;
 import com.web.api.service.TentativeService;
 import com.web.api.service.TokenUserService;
 import com.web.api.service.UtilisateurService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 public class UtilisateurController {
@@ -61,6 +65,13 @@ public class UtilisateurController {
 
     @Autowired
     PinService pinService;
+
+    @Autowired
+    ConfigRepository configRepository;
+
+    @Autowired
+    HttpSession session;
+
 
     @PostMapping("check-login")
     public ResponseEntity<?> checkLogin(@RequestParam String email, @RequestParam String motDePasse) {
@@ -145,37 +156,44 @@ public class UtilisateurController {
         return ResponseEntity.ok("saved");
     }
 
-    @GetMapping("get-user-from-cookie")
-    public ResponseEntity<?> getUserFromCookie(@CookieValue(value = "jwt_token", defaultValue = "") String jwtToken) {
-        if (jwtToken.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "error", "Token manquant ou invalide"));
-        }
+    // @GetMapping("get-user-from-cookie")
+    // public ResponseEntity<?> getUserFromCookie(@CookieValue(value = "jwt_token", defaultValue = "") String jwtToken) {
+    //     if (jwtToken.isEmpty()) {
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+    //                 "error", "Token manquant ou invalide"));
+    //     }
 
-        try {
-            String secretKey = "cleTokenUser"; // La même clé utilisée pour signer le token
-            Algorithm algorithm = Algorithm.HMAC256(secretKey);
-            DecodedJWT decodedJWT = JWT.require(algorithm)
-                    .withIssuer("CloudS5")
-                    .build()
-                    .verify(jwtToken);
+    //     try {
+    //         String secretKey = "cleTokenUser"; // La même clé utilisée pour signer le token
+    //         Algorithm algorithm = Algorithm.HMAC256(secretKey);
+    //         DecodedJWT decodedJWT = JWT.require(algorithm)
+    //                 .withIssuer("CloudS5")
+    //                 .build()
+    //                 .verify(jwtToken);
 
-            String email = decodedJWT.getSubject(); // Récupère l'email du token
+    //         String email = decodedJWT.getSubject(); // Récupère l'email du token
 
-            return ResponseEntity.ok(Map.of(
-                    "message", "Token valide",
-                    "email", email));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "error", "Token invalide ou expiré"));
-        }
-    }
+    //         return ResponseEntity.ok(Map.of(
+    //                 "message", "Token valide",
+    //                 "email", email));
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+    //                 "error", "Token invalide ou expiré"));
+    //     }
+    // }
 
     @GetMapping("/parametrer-session")
     public ResponseEntity<?> parametrer(@RequestParam int dureeToken) {
-        Sessions.DUREE_TOKEN = dureeToken * 60;
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
-                "message", "Duree token changé"));
+        try {
+            Config conf = this.configRepository.findById(1).get();
+            conf.setDuree(dureeToken);
+
+            this.configRepository.save(conf);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
+                    "message", "Duree token changé"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/reinitialiser/{email}")
@@ -211,16 +229,24 @@ public class UtilisateurController {
         System.out.println("tokenUser = " + tokenUser.getIdUtilisateur());
         tokenUser = this.tokenUserService.saveToken(tokenUser);
 
+        session.setAttribute("utilisateur", idUtilisateur);
+
         return ResponseEntity.status(HttpStatusCode.valueOf(200))
                 .body(Map.of(
                         "message", "Authentification reussi, vous etes connecté maintenant"));
     }
 
     @PutMapping("/{Id_utilisateur}")
-    public ResponseEntity<UtilisateurEntity> updateUtilisateur(
+    public ResponseEntity<?> updateUtilisateur(
             @PathVariable int Id_utilisateur,
             @RequestBody UtilisateurEntity utilisateurDetails) {
+        if (this.tokenUserService.verifierExpirationToken(Id_utilisateur)) {
+            this.utilisateurService.deconnecter(Id_utilisateur);
+            return ResponseEntity.status(HttpStatus.GONE).body(Map.of(
+                "error", "Votre session a expiré"
+            ));
 
+        }
         UtilisateurEntity updatedUtilisateur = utilisateurService.updateUtilisateur(Id_utilisateur, utilisateurDetails);
         if (updatedUtilisateur != null) {
             return ResponseEntity.ok(updatedUtilisateur); // Retourner l'utilisateur mis à jour
@@ -238,5 +264,6 @@ public class UtilisateurController {
         }
         return ResponseEntity.notFound().build();
     }
+
 
 }

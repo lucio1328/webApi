@@ -49,3 +49,9 @@ CREATE TABLE pre_inscription(
 );
 
 
+CREATE TABLE config(
+   id_config SERIAL,
+   duree INTEGER 
+);
+
+
