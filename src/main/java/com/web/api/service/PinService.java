@@ -17,7 +17,7 @@ public class PinService {
 
     public void verifierPin(int pin, int idUtilisateur) throws Exception {
         ValidationConnectionEntity validationConnectionEntity = this.validationConnectionRepository
-                .findTopByIdUtilisateur(idUtilisateur);
+                .findTopByPinAndIdUtilisateur(String.valueOf(pin), idUtilisateur);
         if (validationConnectionEntity != null) {
             ValidationConnectionEntity v = validationConnectionEntity;
 
@@ -37,12 +37,13 @@ public class PinService {
                 throw new Exception("Le code PIN n'est plus valide");
 
             } else {
+                // verifier ici si c'est correcte maintenant
                 v.setDaty(currentTimestamp);
                 v.setIdStatut(2);
                 this.validationConnectionRepository.save(v);
             }
         } else {
-            throw new Exception("Erreur tsy haiko");
+            throw new Exception("Le code PIN que vous avez saisi n'est pas correcte");
         }
     }
 

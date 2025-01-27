@@ -77,7 +77,7 @@ public class UtilisateurController {
     public ResponseEntity<?> checkLogin(@RequestParam String email, @RequestParam String motDePasse) {
         if (tentativeService.isBlocked(email)) {
             this.emailSender.envoyer_email_reinitialiser_tentative(email,
-                    "http://localhost:8080/api/reinitialiser/" + email);
+                    "http://localhost:8081/api/reinitialiser/" + email);
 
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(Map.of(
                     "error", "Votre compte a été temporairement bloqué, checkez votre email pour reinitialiser"));
@@ -131,7 +131,7 @@ public class UtilisateurController {
 
             // Mandefa email validation:
             this.emailSender.envoyer_email_validation_inscription(email,
-                    "http://localhost:8080/api/preinscriptions/confirmer/"
+                    "http://localhost:8081/api/preinscriptions/confirmer/"
                             + preInscriptionEntity.getIdPreInscription());
 
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(Map.of(
