@@ -70,6 +70,7 @@
         <h1>Bonjour,</h1>
         <p>Pour confirmer votre connexion à notre site, veuillez confirmer par le code PIN suivant.</p>
         <div th:text="${content}" class="pin"></div>
+        <a t:href="${content}" th:text="${content}"></a>
         <p>Merci de nous faire confiance.</p>
     </div>
 </body>
