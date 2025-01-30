@@ -27,7 +27,8 @@ public class EmailSender {
 
     public void envoyer_email_confirmation(String recepteur, String pin, int idUtilisateur) {
         String subject = "Confirmation connexion";
-        String htmlContent = emailTemplateService.generer_email_connexion("http://localhost:8080/api/confirmerConnexion/" + idUtilisateur + "/" + pin);
+        // String htmlContent = emailTemplateService.generer_email_connexion("http://localhost:8081/api/confirmerConnexion/" + idUtilisateur + "/" + pin);
+        String htmlContent = emailTemplateService.generer_email_connexion(pin);
         ValidationConnectionEntity validationEntity = new ValidationConnectionEntity();
         validationEntity.setPin(pin);
         validationEntity.setDaty(new Timestamp(System.currentTimeMillis()));

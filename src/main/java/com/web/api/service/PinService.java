@@ -18,6 +18,7 @@ public class PinService {
     public void verifierPin(int pin, int idUtilisateur) throws Exception {
         ValidationConnectionEntity validationConnectionEntity = this.validationConnectionRepository
                 .findTopByPinAndIdUtilisateur(String.valueOf(pin), idUtilisateur);
+        System.out.println("verification PIN");
         if (validationConnectionEntity != null) {
             ValidationConnectionEntity v = validationConnectionEntity;
 
@@ -30,11 +31,11 @@ public class PinService {
             // Calculer l'intervalle en secondes
             long intervalInSeconds = (currentTimestamp.getTime() - existingTimestamp.getTime()) / 1000;
 
-            System.out.println("Intervalle en secondes : " + intervalInSeconds);
+            System.out.println("INTERVALE EN SECONDES : " + intervalInSeconds);
 
             // Si la condition est respectée, écraser
-            if (intervalInSeconds/1000 > 90) {
-                throw new Exception("Le code PIN n'est plus valide");
+            if (intervalInSeconds > 90) {
+                throw new Exception("Le code PIN n'est plus valide, veuillez vous reconnecter");
 
             } else {
                 // verifier ici si c'est correcte maintenant
