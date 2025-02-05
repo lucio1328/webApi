@@ -3,29 +3,49 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: web-api
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/api
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/api
       SPRING_DATASOURCE_USERNAME: api
       SPRING_DATASOURCE_PASSWORD: api
-      APP_SECURITY_MAX_ATTEMPTS: 3
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     depends_on:
-      - db
-    command: ["sh", "-c", "until nc -z -v -w30 db 5432; do echo 'Waiting for database...'; sleep 1; done; java -jar /app/app.jar"]
+      - postgres-db
+      - redis
+    command: ["sh", "-c", "until nc -z -v -w30 postgres-db 5432; do echo 'Waiting for database...'; sleep 1; done; java -jar /app/app.jar"]
+    networks:
+      - cryptomonnaie-network
 
-  db:
+  postgres-db:
     image: postgres:15
-    container_name: postgres-db
+    container_name: postgres-data-db
+    hostname: postgres-db
     ports:
-      - "5432:5432"
+      - "5431:5432"
     environment:
       POSTGRES_DB: api
       POSTGRES_USER: api
       POSTGRES_PASSWORD: api
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_db:/var/lib/postgresql/data
       - ./docker/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - cryptomonnaie-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - cryptomonnaie-network
 
 volumes:
-  postgres_data:
+  postgres_data_db:
+
+networks:
+  cryptomonnaie-network:
+    driver: bridge

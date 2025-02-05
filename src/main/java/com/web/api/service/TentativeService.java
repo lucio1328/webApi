@@ -22,19 +22,27 @@ public class TentativeService {
         String key = "login:attempts:" + email;
         redisTemplate.opsForValue().set(key, 0);
     }
+    public void reinitialiser(String email) {
+        String key = "login:attempts:" + email;
+        redisTemplate.opsForValue().set(key, 0);
+    }
 
     public void loginFailed(String email) {
         String key = "login:attempts:" + email;
         Integer attempts = redisTemplate.opsForValue().get(key);
 
+        System.out.println("Valeur a incrementer = " + attempts);
+
         if (attempts == null) {
             redisTemplate.opsForValue().set(key, 1);
-        }
-        else {
-            redisTemplate.opsForValue().increment(key);
+            System.out.println("Valeur de la clee = " + redisTemplate.opsForValue().get(key));
+        } else {
+            System.out.println("Valeur de la clee maintenant= " + redisTemplate.opsForValue().get(key));
+            redisTemplate.opsForValue().set(key, attempts + 1);
 
             if (attempts + 1 >= maxAttempts) {
-                handleBlock(email);
+                System.out.println("HANDLE amzay");
+                // handleBlock(email);
             }
         }
     }
@@ -53,4 +61,8 @@ public class TentativeService {
         emailService.envoyer_email_reinitialiser_tentative(email,
                 "Votre compte a été temporairement bloqué après plusieurs tentatives échouées. Veuillez réinitialiser votre mot de passe ou contacter le support.");
     }
+
+    
+
+    
 }
