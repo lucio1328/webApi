@@ -142,16 +142,16 @@ public class UtilisateurController {
 
     }
 
-    @GetMapping("saveUser")
-    public ResponseEntity<?> save() {
-        UtilisateurEntity user = new UtilisateurEntity();
-        user.setNom("Jean");
-        user.setEmail("jean@exemple.com");
-        user.setMotDePasse(BCrypt.hashpw("12345", BCrypt.gensalt()));
+    // @GetMapping("saveUser")
+    // public ResponseEntity<?> save() {
+    //     UtilisateurEntity user = new UtilisateurEntity();
+    //     user.setNom("Jean");
+    //     user.setEmail("jean@exemple.com");
+    //     user.setMotDePasse(BCrypt.hashpw("12345", BCrypt.gensalt()));
 
-        utilisateurRepository.save(user);
-        return ResponseEntity.ok("saved");
-    }
+    //     utilisateurRepository.save(user);
+    //     return ResponseEntity.ok("saved");
+    // }
 
     // @GetMapping("get-user-from-cookie")
     // public ResponseEntity<?> getUserFromCookie(@CookieValue(value = "jwt_token", defaultValue = "") String jwtToken) {
